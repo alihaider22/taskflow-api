@@ -91,3 +91,18 @@ def update_task(task_id: UUID, task_data: TaskUpdate):
     task.updated_at = datetime.now()
     
     return task
+
+
+@app.delete("/tasks/{task_id}", status_code=status.HTTP_204_NO_CONTENT)
+def delete_task(task_id: UUID):
+    task = find_task_by_id(task_id)
+    if not task:
+        raise HTTPException(
+            status_code=status.HTTP_404_NOT_FOUND,
+            detail=f"Task with id {task_id} not found"
+        )
+    
+    tasks.remove(task)
+    return None
+
+
