@@ -4,12 +4,8 @@ from typing import List, Optional
 from uuid import UUID, uuid4
 from datetime import datetime
 
-app = FastAPI()
+app = FastAPI(title="TaskFlow API", description="A simple task manager API", version="1.0.0")
 
-
-@app.get("/")
-async def root():
-    return {"message": "Welcome to TaskFlow API!"}
 
 class TaskCreate(BaseModel):
     title: str = Field(..., min_length=3, max_length=100, description="The title of the task")
@@ -41,12 +37,22 @@ def find_task_by_id(task_id: UUID) -> Optional[Task]:
     return None
 
 
-@app.get("/tasks/", response_model=List[Task])
+@app.get("/")
+async def root():
+    return {"message": "Welcome to TaskFlow API!", "version": "1.0.0", "docs": "/docs"}
+
+
+@app.get("/health")
+async def health_check():
+    return {"status": "healthy", "timestamp": datetime.now()}
+
+
+@app.get("/api/v1/tasks/", response_model=List[Task])
 def get_all_tasks():
     return tasks
 
 
-@app.post("/tasks/", response_model=Task)
+@app.post("/api/v1/tasks/", response_model=Task)
 def create_task(task_data: TaskCreate):
     
     new_task = Task(
@@ -61,7 +67,7 @@ def create_task(task_data: TaskCreate):
     return new_task
 
 
-@app.get("/tasks/{task_id}", response_model=Task)
+@app.get("/api/v1/tasks/{task_id}", response_model=Task)
 def get_task(task_id: UUID):
     task = find_task_by_id(task_id)
     if not task:
@@ -72,7 +78,7 @@ def get_task(task_id: UUID):
     return task
 
 
-@app.put("/tasks/{task_id}", response_model=Task)
+@app.put("/api/v1/tasks/{task_id}", response_model=Task)
 def update_task(task_id: UUID, task_data: TaskUpdate):
     task = find_task_by_id(task_id)
     if not task:
@@ -93,7 +99,7 @@ def update_task(task_id: UUID, task_data: TaskUpdate):
     return task
 
 
-@app.delete("/tasks/{task_id}", status_code=status.HTTP_204_NO_CONTENT)
+@app.delete("/api/v1/tasks/{task_id}", status_code=status.HTTP_204_NO_CONTENT)
 def delete_task(task_id: UUID):
     task = find_task_by_id(task_id)
     if not task:
