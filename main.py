@@ -34,6 +34,10 @@ class Task(BaseModel):
 # empty tasks list
 tasks: List[Task] = []
 
+@app.get("/tasks/", response_model=List[Task])
+def get_all_tasks():
+    return tasks
+
 @app.post("/tasks/", response_model=Task)
 def create_task(task_data: TaskCreate):
     
