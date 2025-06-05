@@ -70,3 +70,24 @@ def get_task(task_id: UUID):
             detail=f"Task with id {task_id} not found"
         )
     return task
+
+
+@app.put("/tasks/{task_id}", response_model=Task)
+def update_task(task_id: UUID, task_data: TaskUpdate):
+    task = find_task_by_id(task_id)
+    if not task:
+        raise HTTPException(
+            status_code=status.HTTP_404_NOT_FOUND,
+            detail=f"Task with id {task_id} not found"
+        )
+    
+    if task_data.title is not None:
+        task.title = task_data.title
+    if task_data.description is not None:
+        task.description = task_data.description
+    if task_data.is_completed is not None:
+        task.is_completed = task_data.is_completed
+    
+    task.updated_at = datetime.now()
+    
+    return task
