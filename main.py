@@ -8,8 +8,8 @@ app = FastAPI()
 
 
 @app.get("/")
-def read_root():
-    return {"Hello": "World"}
+async def root():
+    return {"message": "Welcome to TaskFlow API!"}
 
 class TaskCreate(BaseModel):
     title: str = Field(..., min_length=3, max_length=100, description="The title of the task")
