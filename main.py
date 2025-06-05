@@ -1,4 +1,4 @@
-from fastapi import FastAPI
+from fastapi import FastAPI, HTTPException, status
 from pydantic import BaseModel, Field
 from typing import List, Optional
 from uuid import UUID, uuid4
@@ -34,9 +34,17 @@ class Task(BaseModel):
 # empty tasks list
 tasks: List[Task] = []
 
+def find_task_by_id(task_id: UUID) -> Optional[Task]:
+    for task in tasks:
+        if task.id == task_id:
+            return task
+    return None
+
+
 @app.get("/tasks/", response_model=List[Task])
 def get_all_tasks():
     return tasks
+
 
 @app.post("/tasks/", response_model=Task)
 def create_task(task_data: TaskCreate):
@@ -52,3 +60,13 @@ def create_task(task_data: TaskCreate):
     tasks.append(new_task)
     return new_task
 
+
+@app.get("/tasks/{task_id}", response_model=Task)
+def get_task(task_id: UUID):
+    task = find_task_by_id(task_id)
+    if not task:
+        raise HTTPException(
+            status_code=status.HTTP_404_NOT_FOUND,
+            detail=f"Task with id {task_id} not found"
+        )
+    return task
