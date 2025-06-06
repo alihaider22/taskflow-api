@@ -99,6 +99,21 @@ def update_task(task_id: UUID, task_data: TaskUpdate):
     return task
 
 
+@app.patch("/api/v1/tasks/{task_id}", response_model=Task)
+def toggle_task_status(task_id: UUID):
+    task = find_task_by_id(task_id)
+    if not task:
+        raise HTTPException(
+            status_code=status.HTTP_404_NOT_FOUND,
+            detail=f"Task with id {task_id} not found"
+        )
+    
+    task.is_completed = not task.is_completed
+    task.updated_at = datetime.now()
+    
+    return task
+
+
 @app.delete("/api/v1/tasks/{task_id}", status_code=status.HTTP_204_NO_CONTENT)
 def delete_task(task_id: UUID):
     task = find_task_by_id(task_id)
